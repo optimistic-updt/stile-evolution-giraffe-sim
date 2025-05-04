@@ -2,14 +2,14 @@ import GiraffeSimulation from "@/components/giraffe-simulation";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-white">
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-white max-w-3xl mx-auto">
       <div className="flex w-full h-40 bg-gray-100 flex-col justify-end p-4">
-        <h1 className="text-3xl md:text-4xl font-bold">
+        <h1 className="text-3xl md:text-4xl font-bold max-w-3xl">
           1.4 Lesson: Natural Selection
         </h1>
       </div>
 
-      <section className="mb-8 max-w-3xl mt-8 text-base md:text-lg space-y-4">
+      <section className="mb-8 mt-8 text-base md:text-lg space-y-4">
         <h2 className="text-2xl md:text-3xl font-bold mb-3">
           Natural Selection
         </h2>
@@ -48,17 +48,27 @@ export default function Home() {
           populations evolve over many generations.
         </p>
 
-        <p>
-          Adaptations help organisms survive in their particular environment,
-          like the camouflage of the Vietnamese mossy frog.
-        </p>
+        <figure>
+          <div className="bg-gray-100 p-4 rounded-lg h-72">
+            image placeholder
+          </div>
+          <figcaption className="w-full">
+            Adaptations help organisms survive in their particular environment,
+            like the camouflage of the Vietnamese mossy frog.
+          </figcaption>
+        </figure>
 
-        <p>
-          Predators like the osprey are one selection pressure that can drive
-          evolution. Anything that affects an organism's ability to survive in
-          its particular environment is called a{" "}
-          <strong>selection pressure</strong>. Examples include:
-        </p>
+        <figure>
+          <div className="bg-gray-100 p-4 rounded-lg h-72">
+            image placeholder
+          </div>
+          <figcaption>
+            Predators like the osprey are one selection pressure that can drive
+            evolution. Anything that affects an organism's ability to survive in
+            its particular environment is called a{" "}
+            <strong>selection pressure</strong>. Examples include:
+          </figcaption>
+        </figure>
 
         <ul className="list-disc pl-6 space-y-1">
           <li>
@@ -75,6 +85,11 @@ export default function Home() {
           Selection pressures can either increase or decrease the occurrence of
           a genetic trait over many generations.
         </p>
+      </section>
+
+      <section className="mb-8 mt-8 text-base md:text-lg space-y-4 italic">
+        Add a couple of questions where students must pick which animal is
+        better camouflage using real photo
       </section>
 
       <p className="mb-6 text-base md:text-lg ">
