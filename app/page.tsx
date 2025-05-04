@@ -1,4 +1,4 @@
-import GiraffeSimulation from "@/components/giraffe-simulation";
+import GiraffeSimulation from "@/features/giraffe-simulation/giraffe-simulation";
 
 export default function Home() {
   return (
@@ -97,6 +97,7 @@ export default function Home() {
         that can reach the leaves survive, while those that cannot will
         disappear.
       </p>
+
       <GiraffeSimulation />
     </main>
   );

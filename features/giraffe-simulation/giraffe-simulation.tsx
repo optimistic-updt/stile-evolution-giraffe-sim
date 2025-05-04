@@ -1,82 +1,27 @@
 "use client";
 
-// TODO deploy
+// TODO
 // test the giraffe refresh on each generation
 
-import { useState, useEffect, useRef } from "react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { useState, useEffect, useRef, FC } from "react";
+import { Button } from "@/lib/ui/button";
+import { Slider } from "@/lib/ui/slider";
 import { RefreshCcw, Play, Pause } from "lucide-react";
+import { Giraffe, createGiraffe } from "./giraffe";
+import { Tree, createTree } from "./tree";
 
-interface Giraffe {
-  id: number;
-  x: number;
-  neckHeight: number;
-  alive: boolean;
-  eating: boolean;
-  opacity: number;
-  bodySpots: Array<{ x: number; y: number; radius: number }>;
-  neckSpots: Array<{ x: number; y: number; radius: number }>;
-}
-
-interface Tree {
-  x: number;
-  height: number;
-  leafHeight: number;
-}
-
-// parameters
+/**
+ * Setup / Params
+ */
 const MIN_TREE_HEIGHT = 100;
 const MAX_TREE_HEIGHT = 250;
 
+export const TREE_COUNT = 3;
+
 const GIRAFFE_COUNT = 10;
-const TREE_COUNT = 3;
+const GIRAFFE_HEAD_HEIGHT = 20;
 
-const createGiraffe = (i: number) => {
-  let neckHeight = 60 + Math.random() * 140; // Random neck height between 60-200
-
-  // Generate body spots
-  let bodySpots = [];
-  for (let j = 0; j < 5; j++) {
-    bodySpots.push({
-      x: -10 + Math.random() * 20,
-      y: -20 - Math.random() * 30,
-      radius: 5,
-    });
-  }
-
-  // Generate neck spots
-  let neckSpots = [];
-  let neckSpotCount = Math.floor(neckHeight / 20);
-  for (let j = 0; j < neckSpotCount; j++) {
-    neckSpots.push({
-      x: -5 + Math.random() * 10,
-      y: -60 - j * 20 - Math.random() * 10,
-      radius: 4,
-    });
-  }
-
-  return {
-    id: i,
-    x: 50 + i * 75,
-    neckHeight,
-    alive: true,
-    eating: false,
-    opacity: 1,
-    bodySpots,
-    neckSpots,
-  };
-};
-
-const createTree = (i: number, treeHeight: number) => {
-  return {
-    x: 150 + i * 200,
-    height: treeHeight,
-    leafHeight: treeHeight - 20,
-  };
-};
-
-let GiraffeSimulation = () => {
+export let GiraffeSimulation: FC = () => {
   let canvasRef = useRef<HTMLCanvasElement>(null);
   let [isRunning, setIsRunning] = useState(false);
   let [generation, setGeneration] = useState(1);
@@ -94,7 +39,7 @@ let GiraffeSimulation = () => {
   let animationRef = useRef<number>(0);
   let frameCountRef = useRef(0);
 
-  // Create new generation of giraffes and trees
+  // resets to a fresh generation of giraffes and trees
   let resetSimulation = () => {
     let newGiraffes: Giraffe[] = [];
     let newTrees: Tree[] = [];
@@ -147,14 +92,12 @@ let GiraffeSimulation = () => {
     setGiraffes((prevGiraffes) => {
       let updatedGiraffes = [...prevGiraffes];
 
+      // Check if giraffe can reach leaves
       let testReachability = (giraffe: Giraffe) => {
         if (!giraffe.alive) return;
 
-        console.log("will test reachability");
-
-        // Check if giraffe can reach leaves
-        let headHeight = 20; // todo - extract
-        let canReach = giraffe.neckHeight + headHeight >= treeHeight - 100;
+        let canReach =
+          giraffe.neckHeight + GIRAFFE_HEAD_HEIGHT >= treeHeight - 100;
 
         if (canReach) {
           giraffe.eating = true;
@@ -283,6 +226,7 @@ let GiraffeSimulation = () => {
     });
 
     // Draw giraffes
+    const GIRAFFE_BODY_HEIGHT = 60;
     currentGiraffes.forEach((giraffe) => {
       if (giraffe.opacity <= 0) return;
 
@@ -290,7 +234,12 @@ let GiraffeSimulation = () => {
 
       // Draw body
       ctx.fillStyle = "#FFC107";
-      ctx.fillRect(giraffe.x - 20, horizonYPos - 60, 40, 60);
+      ctx.fillRect(
+        giraffe.x - 20,
+        horizonYPos - GIRAFFE_BODY_HEIGHT,
+        40,
+        GIRAFFE_BODY_HEIGHT,
+      );
 
       // Draw spots on body
       ctx.fillStyle = "#FF9800";
@@ -310,7 +259,7 @@ let GiraffeSimulation = () => {
       ctx.fillStyle = "#FFC107";
       ctx.fillRect(
         giraffe.x - 10,
-        horizonYPos - 60 - giraffe.neckHeight,
+        horizonYPos - GIRAFFE_BODY_HEIGHT - giraffe.neckHeight,
         20,
         giraffe.neckHeight,
       );
@@ -333,7 +282,10 @@ let GiraffeSimulation = () => {
       ctx.fillStyle = "#FFC107";
       ctx.fillRect(
         giraffe.x - 15,
-        horizonYPos - 60 - giraffe.neckHeight - 20,
+        horizonYPos -
+          GIRAFFE_BODY_HEIGHT -
+          giraffe.neckHeight -
+          GIRAFFE_HEAD_HEIGHT,
         30,
         20,
       );
@@ -343,7 +295,10 @@ let GiraffeSimulation = () => {
       ctx.beginPath();
       ctx.arc(
         giraffe.x - 8,
-        horizonYPos - 60 - giraffe.neckHeight - 10,
+        horizonYPos -
+          GIRAFFE_BODY_HEIGHT -
+          giraffe.neckHeight -
+          GIRAFFE_HEAD_HEIGHT / 2,
         2,
         0,
         Math.PI * 2,
@@ -352,7 +307,10 @@ let GiraffeSimulation = () => {
       ctx.beginPath();
       ctx.arc(
         giraffe.x + 8,
-        horizonYPos - 60 - giraffe.neckHeight - 10,
+        horizonYPos -
+          GIRAFFE_BODY_HEIGHT -
+          giraffe.neckHeight -
+          GIRAFFE_HEAD_HEIGHT / 2,
         2,
         0,
         Math.PI * 2,
@@ -365,7 +323,10 @@ let GiraffeSimulation = () => {
         ctx.beginPath();
         ctx.arc(
           giraffe.x,
-          horizonYPos - 60 - giraffe.neckHeight - 25,
+          horizonYPos -
+            GIRAFFE_BODY_HEIGHT -
+            giraffe.neckHeight -
+            (GIRAFFE_HEAD_HEIGHT + 5),
           5,
           0,
           Math.PI * 2,
