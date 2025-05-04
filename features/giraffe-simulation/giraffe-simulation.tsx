@@ -111,14 +111,19 @@ export let GiraffeSimulation: FC = () => {
         return giraffe;
       };
 
-      // Check which giraffes can reach leaves
-      updatedGiraffes.forEach(testReachability);
-
-      // Fade out dead giraffes
-      updatedGiraffes.forEach((giraffe) => {
+      const fadeOutDeadOnes = (giraffe: Giraffe) => {
         if (!giraffe.alive && giraffe.opacity > 0) {
           giraffe.opacity -= 0.01;
         }
+      };
+
+      updatedGiraffes.forEach((giraffe) => {
+        // Check which giraffes can reach leaves
+        testReachability(giraffe);
+
+        fadeOutDeadOnes(giraffe);
+
+        return giraffe;
       });
 
       // Check if all giraffes have been evaluated
@@ -129,7 +134,6 @@ export let GiraffeSimulation: FC = () => {
       if (allEvaluated) {
         // Create new generation with traits from survivors
         timeOutId = setTimeout(() => {
-          console.log("will create new gen");
           createNewGeneration();
         }, 1000);
       }
@@ -390,12 +394,10 @@ export let GiraffeSimulation: FC = () => {
 
           // Update simulation every 60 frames (approximately 1 second)
           if (frameCountRef.current % 60 === 0) {
-            console.log("will update");
             updateSimulation();
           }
 
           // Draw current state
-          console.log("will draw");
           drawSimulation(ctx, giraffes, trees);
 
           // Continue animation
@@ -412,8 +414,7 @@ export let GiraffeSimulation: FC = () => {
         cancelAnimationFrame(animationRef.current);
       };
     },
-    [isRunning],
-    // [isRunning, giraffes, trees],
+    [isRunning, giraffes, trees],
   );
 
   return (
