@@ -1,5 +1,8 @@
 "use client";
 
+// TODO deploy
+// test the giraffe refresh on each generation
+
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -55,7 +58,7 @@ const createGiraffe = (i: number) => {
 
   return {
     id: i,
-    x: 50 + i * 70, //mmmm
+    x: 50 + i * 75,
     neckHeight,
     alive: true,
     eating: false,
@@ -64,6 +67,7 @@ const createGiraffe = (i: number) => {
     neckSpots,
   };
 };
+
 const createTree = (i: number, treeHeight: number) => {
   return {
     x: 150 + i * 200,
@@ -143,12 +147,13 @@ let GiraffeSimulation = () => {
     setGiraffes((prevGiraffes) => {
       let updatedGiraffes = [...prevGiraffes];
 
-      // Check which giraffes can reach leaves
-      updatedGiraffes.forEach((giraffe) => {
+      let testReachability = (giraffe: Giraffe) => {
         if (!giraffe.alive) return;
 
+        console.log("will test reachability");
+
         // Check if giraffe can reach leaves
-        let headHeight = 20; // todo
+        let headHeight = 20; // todo - extract
         let canReach = giraffe.neckHeight + headHeight >= treeHeight - 100;
 
         if (canReach) {
@@ -159,7 +164,12 @@ let GiraffeSimulation = () => {
           // Start fading out
           giraffe.opacity = 0.8;
         }
-      });
+
+        return giraffe;
+      };
+
+      // Check which giraffes can reach leaves
+      updatedGiraffes.forEach(testReachability);
 
       // Fade out dead giraffes
       updatedGiraffes.forEach((giraffe) => {
@@ -178,19 +188,15 @@ let GiraffeSimulation = () => {
         timeOutId = setTimeout(() => {
           console.log("will create new gen");
           createNewGeneration();
-        }, 1500);
+        }, 1000);
       }
       calculateStats(updatedGiraffes);
-
-      console.log("updatedGiraffes", updatedGiraffes);
 
       return updatedGiraffes;
     });
   };
 
-  // Create new generation based on survivors
   let createNewGeneration = () => {
-    // setTreeHeight((prev) => Math.min(MAX_TREE_HEIGHT, prev + 10));
     setGiraffes((prevGiraffes) => {
       let survivors = prevGiraffes.filter((g) => g.alive);
 
@@ -199,47 +205,41 @@ let GiraffeSimulation = () => {
         resetSimulation();
         return prevGiraffes;
       }
-      let newGeneration: Giraffe[] = survivors;
+
+      let newGiraffeGeneration: Giraffe[] = survivors.map((giraffe) => ({
+        ...giraffe,
+        eating: false,
+      }));
+
       // Create new generation based on survivors' traits
-      // let newGeneration: Giraffe[] = [];
+      // let newGiraffeGeneration: Giraffe[] = [];
       // Each survivor produces one offspring
       // survivors.forEach((parent, index) => {
       //   // Create offspring with slight mutation
       //   let mutation = Math.random() * 20 - 10 // -10 to +10
       //   let neckHeight = Math.max(60, Math.min(200, parent.neckHeight + mutation))
-      //   // Generate body spots
-      //   let bodySpots = []
-      //   for (let j = 0; j < 5; j++) {
-      //     bodySpots.push({
-      //       x: -10 + Math.random() * 20,
-      //       y: -30 - Math.random() * 30,
-      //       radius: 5,
-      //     })
-      //   }
-      //   // Generate neck spots
-      //   let neckSpots = []
-      //   let neckSpotCount = Math.floor(neckHeight / 20)
-      //   for (let j = 0; j < neckSpotCount; j++) {
-      //     neckSpots.push({
-      //       x: -5 + Math.random() * 10,
-      //       y: -60 - j * 20 - Math.random() * 10,
-      //       radius: 4,
-      //     })
-      //   }
-      //   newGeneration.push({
-      //     id: index,
-      //     x: 50 + index * 70, // Adjust x position based on index to space them out
-      //     neckHeight,
-      //     alive: true,
-      //     eating: false,
-      //     opacity: 1,
-      //     bodySpots,
-      //     neckSpots,
-      //   })
       // })
-      setGeneration((prev) => prev + 1);
-      calculateStats(newGeneration);
-      return newGeneration;
+
+      calculateStats(newGiraffeGeneration);
+      return newGiraffeGeneration;
+    });
+
+    setGeneration((prev) => prev + 1);
+
+    // grow the trees
+    setTreeHeight((prev) => {
+      let newHeight = Math.min(MAX_TREE_HEIGHT, prev + 10);
+
+      let grownTrees = trees.map((tree) => {
+        tree.height = newHeight;
+        tree.leafHeight = newHeight - 20;
+
+        return tree;
+      });
+
+      setTrees(grownTrees);
+
+      return newHeight;
     });
   };
 
@@ -361,7 +361,7 @@ let GiraffeSimulation = () => {
 
       // Draw eating animation if applicable
       if (giraffe.eating) {
-        ctx.fillStyle = "#00E676";
+        ctx.fillStyle = "#F635FF";
         ctx.beginPath();
         ctx.arc(
           giraffe.x,
@@ -373,7 +373,8 @@ let GiraffeSimulation = () => {
         ctx.fill();
       }
 
-      ctx.globalAlpha = 1; //TODO???
+      // reset opacity
+      ctx.globalAlpha = 1;
     });
   };
 
@@ -468,7 +469,7 @@ let GiraffeSimulation = () => {
           <div className="flex gap-2">
             <Button
               onClick={toggleSimulation}
-              className="bg-[#00E676] hover:bg-[#00C853] text-white"
+              className="bg-stile-green hover:bg-stile-green-dark text-white"
             >
               {isRunning ? (
                 <Pause className="mr-2 h-4 w-4" />
@@ -480,7 +481,7 @@ let GiraffeSimulation = () => {
             <Button
               onClick={resetSimulation}
               variant="outline"
-              className="border-[#00E676] text-[#00E676] hover:bg-[#E8F5E9]"
+              className="border-stile-green text-stile-green hover:bg-[#E8F5E9]"
             >
               <RefreshCcw className="mr-2 h-4 w-4" />
               Reset
